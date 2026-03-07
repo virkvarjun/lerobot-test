@@ -1,0 +1,9 @@
+# LeRobot with Feetech motor support (SO-100/SO-101 arms)
+# Pin to 0.3.2 for reproducibility; bump when upstream stabilizes on Python 3.14
+lerobot==0.3.2
+
+# Feetech servo SDK (required for SO-101 motor communication)
+feetech-servo-sdk
+
+# Optional: Weights & Biases for experiment tracking
+# wandb

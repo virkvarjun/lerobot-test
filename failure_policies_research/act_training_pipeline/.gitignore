@@ -1,0 +1,26 @@
+# Datasets (large, recorded locally)
+data/
+
+# Training outputs and checkpoints
+outputs/
+
+# Weights & Biases
+wandb/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment config (contains user-specific ports/secrets)
+configs/robot.env
