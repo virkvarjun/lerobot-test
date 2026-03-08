@@ -1,0 +1,19 @@
+{
+  "threshold": 0.35000000000000003,
+  "n_failed_episodes": 2,
+  "n_success_episodes": 3,
+  "lead_time_mean": 99.0,
+  "lead_time_median": 99.0,
+  "lead_time_min": 99,
+  "lead_time_max": 99,
+  "pct_failed_detected_1_step": 100.0,
+  "pct_failed_detected_3_step": 100.0,
+  "pct_failed_detected_5_step": 100.0,
+  "pct_failed_detected_10_step": 100.0,
+  "pct_failed_never_alarmed": 0.0,
+  "pct_success_false_alarm": 0.0,
+  "lead_times": [
+    99,
+    99
+  ]
+}

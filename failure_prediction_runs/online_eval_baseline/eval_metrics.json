@@ -1,0 +1,15 @@
+{
+  "mode": "baseline",
+  "num_episodes": 20,
+  "success_rate": 0.75,
+  "n_success": 15,
+  "n_fail": 5,
+  "total_interventions": 0,
+  "avg_interventions_per_episode": 0.0,
+  "pct_failed_with_alarm": 0.0,
+  "pct_success_false_alarm": 0.0,
+  "checkpoint": "/workspace/Research/outputs/train/act_transfer_cube/checkpoints/100000/pretrained_model",
+  "risk_model_ckpt": null,
+  "risk_threshold": 0.5,
+  "num_candidate_chunks": 5
+}
