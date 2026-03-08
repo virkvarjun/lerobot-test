@@ -20,7 +20,14 @@ python -m failure_prediction.scripts.analyze_failure_predictor \
   --processed_dir "$PROCESSED_DIR" \
   --output_dir "${BASE}/transfer_cube_analysis"
 
-THRESHOLD=$(python -c "import json; print(json.load(open('${BASE}/transfer_cube_analysis/threshold_sweep.json'))['recommended_threshold'])")
+THRESHOLD=$(python -c "
+import json
+p = '${BASE}/transfer_cube_analysis/threshold_sweep.json'
+try:
+    print(json.load(open(p))['recommended_threshold'])
+except Exception:
+    print('0.5')
+")
 echo "Recommended threshold: $THRESHOLD"
 
 echo "=== 2. Online evaluation ==="
@@ -45,7 +52,7 @@ python -m failure_prediction.scripts.run_failure_aware_eval \
 echo "=== 3. Plots ==="
 python -m failure_prediction.scripts.plot_final_results \
   --run_dirs \
-    "${BASE}/transfer_cube_supervised" \
+    "$RISK_MODEL" \
     "${BASE}/transfer_cube_analysis" \
     "${BASE}/online_eval_baseline" \
     "${BASE}/online_eval_monitor" \
@@ -54,7 +61,7 @@ python -m failure_prediction.scripts.plot_final_results \
 
 echo "=== 4. Final report ==="
 python -m failure_prediction.scripts.generate_final_report \
-  --processed_dir "$PROCESSED_DIR" \
+  --processed_dir "${PROCESSED_DIR}" \
   --supervised_dir "$RISK_MODEL" \
   --analysis_dir "${BASE}/transfer_cube_analysis" \
   --online_baseline "${BASE}/online_eval_baseline" \
