@@ -116,7 +116,7 @@ def run_episode(
         rng = np.random.default_rng()
 
     policy.reset()
-    raw_obs, info = env.reset(seed=rng.integers(0, 2**31))
+    raw_obs, info = env.reset(seed=int(rng.integers(0, 2**31)))
     current_chunk = None
     chunk_step_idx = 0
     max_ep_steps = env.spec.max_episode_steps or 400
