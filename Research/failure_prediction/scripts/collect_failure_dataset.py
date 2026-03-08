@@ -16,6 +16,7 @@ Example:
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import logging
 import sys
@@ -180,6 +181,15 @@ def features_to_numpy(features: dict[str, torch.Tensor]) -> dict[str, np.ndarray
 
 def run_collection(args):
     """Main collection loop."""
+    # Register gym env namespace before creating env (packages register on import)
+    pkg = f"gym_{args.env_type}"
+    try:
+        importlib.import_module(pkg)
+    except ModuleNotFoundError as e:
+        raise ModuleNotFoundError(
+            f"Environment package '{pkg}' not found. Install with: pip install gym-{args.env_type}"
+        ) from e
+
     logger.info(f"Loading policy from {args.checkpoint}")
     policy, preprocessor, postprocessor = load_policy_and_processors(
         args.checkpoint, args.device
