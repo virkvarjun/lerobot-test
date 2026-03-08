@@ -24,12 +24,17 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 RESEARCH_DIR = SCRIPT_DIR.parent.parent
 sys.path.insert(0, str(RESEARCH_DIR))
 
-from failure_prediction.data.failure_dataset import load_processed_dataset, get_available_feature_fields
+from failure_prediction.data.failure_dataset import (
+    load_processed_dataset,
+    load_failure_dataset,
+    get_available_feature_fields,
+)
 
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--processed_dir", type=str, required=True)
+    p.add_argument("--processed_dir", type=str, default=None)
+    p.add_argument("--mock", action="store_true", help="Use synthetic data when processed_dir has no data")
     p.add_argument("--feature_field", type=str, default="feat_decoder_mean")
     p.add_argument("--output_dir", type=str, default="failure_prediction_runs/embedding_plots")
     p.add_argument("--method", type=str, default="tsne", choices=["tsne", "pca", "umap"])
@@ -45,7 +50,28 @@ def main():
         print("matplotlib required: pip install matplotlib")
         sys.exit(1)
 
-    data, _ = load_processed_dataset(Path(args.processed_dir))
+    # Load real or mock data
+    if args.mock or not args.processed_dir:
+        features, labels, episode_ids, timesteps, _, _ = load_failure_dataset(
+            mock=True,
+            mock_num_episodes=30,
+            mock_timesteps_per_episode=50,
+            mock_feature_dim=512,
+            mock_positive_ratio=0.3,
+        )
+        ep_failed_per_ep = np.array(
+            [1.0 if np.any(labels[episode_ids == e] > 0.5) else 0.0 for e in np.unique(episode_ids)]
+        )
+        ep_failed_per_step = ep_failed_per_ep[episode_ids]
+        data = {
+            args.feature_field: features,
+            "failure_within_k": labels,
+            "episode_failed": ep_failed_per_step,
+        }
+        print("Using mock synthetic data for visualization")
+    else:
+        data, _ = load_processed_dataset(Path(args.processed_dir))
+
     if args.feature_field not in data:
         available = get_available_feature_fields(data)
         print(f"Feature '{args.feature_field}' not found. Available: {available}")
@@ -75,7 +101,7 @@ def main():
     elif args.method == "tsne":
         from sklearn.manifold import TSNE
         perplexity = min(args.perplexity, max(5, n // 4))
-        reducer = TSNE(n_components=2, perplexity=perplexity, random_state=42, n_iter=1000)
+        reducer = TSNE(n_components=2, perplexity=perplexity, random_state=42, max_iter=1000)
         X_2d = reducer.fit_transform(X)
         print("t-SNE done")
     elif args.method == "umap":
