@@ -157,6 +157,63 @@ def preprocess_obs(obs: dict) -> dict[str, torch.Tensor]:
     return result
 
 
+def predict_action_chunk_with_features(policy, obs_processed):
+    """Get action chunk and features from policy. Supports both patched and stock lerobot."""
+    if hasattr(policy, "predict_action_chunk_with_features"):
+        return policy.predict_action_chunk_with_features(obs_processed)
+    # Fallback 1: model supports return_features=True (custom lerobot fork)
+    from lerobot.utils.constants import OBS_IMAGES
+
+    batch = dict(obs_processed)
+    if getattr(policy, "config", None) and getattr(policy.config, "image_features", None):
+        batch[OBS_IMAGES] = [batch[key] for key in policy.config.image_features]
+    with torch.inference_mode():
+        try:
+            out = policy.model(batch, return_features=True)
+        except TypeError:
+            pass  # Fall through to fallback 2
+        else:
+            actions = out[0]
+            features = out[2] if len(out) >= 3 else {}
+            return actions, features
+        # Fallback 2: use forward hooks to capture features from upstream lerobot
+        captured = {}
+
+        def make_hook(name):
+            def hook(_m, _in, out):
+                captured[name] = out.detach()
+
+            return hook
+
+        handles = []
+        if hasattr(policy.model, "encoder"):
+            handles.append(policy.model.encoder.register_forward_hook(make_hook("encoder_out")))
+        if hasattr(policy.model, "decoder"):
+            handles.append(policy.model.decoder.register_forward_hook(make_hook("decoder_out")))
+
+        actions = policy.model(batch)[0]
+        for h in handles:
+            h.remove()
+        batch_size = actions.shape[0]
+        cfg = getattr(policy.model, "config", policy.config)
+        latent_dim = getattr(cfg, "latent_dim", 32)
+        dim_model = getattr(cfg, "dim_model", 512)
+
+        def _t(x):
+            if x.dim() == 3:
+                return x.transpose(0, 1)
+            return x
+
+        enc = captured.get("encoder_out")
+        dec = captured.get("decoder_out")
+        features = {
+            "latent_sample": torch.zeros(batch_size, latent_dim, device=actions.device, dtype=actions.dtype),
+            "encoder_out": _t(enc) if enc is not None else torch.zeros(batch_size, 1, dim_model, device=actions.device, dtype=actions.dtype),
+            "decoder_out": _t(dec) if dec is not None else torch.zeros(batch_size, actions.shape[1], dim_model, device=actions.device, dtype=actions.dtype),
+        }
+        return actions, features
+
+
 def features_to_numpy(features: dict[str, torch.Tensor]) -> dict[str, np.ndarray]:
     """Convert model features dict from GPU tensors to CPU numpy arrays.
 
@@ -267,8 +324,7 @@ def run_collection(args):
             need_new_chunk = (current_chunk is None) or (chunk_step_idx >= n_action_steps)
 
             if need_new_chunk:
-                with torch.inference_mode():
-                    action_chunk, features = policy.predict_action_chunk_with_features(obs_processed)
+                action_chunk, features = predict_action_chunk_with_features(policy, obs_processed)
                 current_chunk = action_chunk
                 current_features = features_to_numpy(features) if args.save_embeddings else None
                 chunk_step_idx = 0
