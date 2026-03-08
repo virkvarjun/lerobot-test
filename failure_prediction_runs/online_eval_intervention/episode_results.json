@@ -1,0 +1,232 @@
+[
+  {
+    "success": false,
+    "terminal_step": 299,
+    "episode_length": 300,
+    "interventions": [
+      {
+        "step": 200,
+        "baseline_risk": 0.9068755088471259,
+        "n_candidates": 5,
+        "candidate_risks": [
+          0.9026219245367036,
+          0.9030120328737553,
+          0.9004968921838299,
+          0.9004475331406897,
+          0.9043343250153042
+        ],
+        "chosen_idx": 3
+      }
+    ],
+    "n_interventions": 1,
+    "episode_id": 0
+  },
+  {
+    "success": true,
+    "terminal_step": 297,
+    "episode_length": 298,
+    "interventions": [
+      {
+        "step": 200,
+        "baseline_risk": 0.8189922239649151,
+        "n_candidates": 5,
+        "candidate_risks": [
+          0.8211496363824502,
+          0.8187136515707545,
+          0.8197627167465313,
+          0.8190626187750459,
+          0.817714466907615
+        ],
+        "chosen_idx": 4
+      }
+    ],
+    "n_interventions": 1,
+    "episode_id": 1
+  },
+  {
+    "success": true,
+    "terminal_step": 292,
+    "episode_length": 293,
+    "interventions": [
+      {
+        "step": 200,
+        "baseline_risk": 0.5921659135163492,
+        "n_candidates": 5,
+        "candidate_risks": [
+          0.5970014756860812,
+          0.5796549815061377,
+          0.5861666494902884,
+          0.5742540713933857,
+          0.5990115802809659
+        ],
+        "chosen_idx": 3
+      }
+    ],
+    "n_interventions": 1,
+    "episode_id": 2
+  },
+  {
+    "success": true,
+    "terminal_step": 257,
+    "episode_length": 258,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 3
+  },
+  {
+    "success": true,
+    "terminal_step": 258,
+    "episode_length": 259,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 4
+  },
+  {
+    "success": true,
+    "terminal_step": 299,
+    "episode_length": 300,
+    "interventions": [
+      {
+        "step": 200,
+        "baseline_risk": 0.6473153385061637,
+        "n_candidates": 5,
+        "candidate_risks": [
+          0.6663879372885309,
+          0.6689451410802153,
+          0.6634679529922292,
+          0.6602836810338587,
+          0.6523230707316494
+        ],
+        "chosen_idx": 4
+      }
+    ],
+    "n_interventions": 1,
+    "episode_id": 5
+  },
+  {
+    "success": true,
+    "terminal_step": 231,
+    "episode_length": 232,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 6
+  },
+  {
+    "success": false,
+    "terminal_step": 299,
+    "episode_length": 300,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 7
+  },
+  {
+    "success": true,
+    "terminal_step": 274,
+    "episode_length": 275,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 8
+  },
+  {
+    "success": false,
+    "terminal_step": 299,
+    "episode_length": 300,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 9
+  },
+  {
+    "success": false,
+    "terminal_step": 299,
+    "episode_length": 300,
+    "interventions": [
+      {
+        "step": 200,
+        "baseline_risk": 0.8352041065643013,
+        "n_candidates": 5,
+        "candidate_risks": [
+          0.8475232366283381,
+          0.8463259051209442,
+          0.8520121684078832,
+          0.8510158595264915,
+          0.8608826262886797
+        ],
+        "chosen_idx": 1
+      }
+    ],
+    "n_interventions": 1,
+    "episode_id": 10
+  },
+  {
+    "success": true,
+    "terminal_step": 243,
+    "episode_length": 244,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 11
+  },
+  {
+    "success": true,
+    "terminal_step": 258,
+    "episode_length": 259,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 12
+  },
+  {
+    "success": true,
+    "terminal_step": 245,
+    "episode_length": 246,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 13
+  },
+  {
+    "success": true,
+    "terminal_step": 295,
+    "episode_length": 296,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 14
+  },
+  {
+    "success": true,
+    "terminal_step": 264,
+    "episode_length": 265,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 15
+  },
+  {
+    "success": true,
+    "terminal_step": 243,
+    "episode_length": 244,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 16
+  },
+  {
+    "success": true,
+    "terminal_step": 294,
+    "episode_length": 295,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 17
+  },
+  {
+    "success": false,
+    "terminal_step": 299,
+    "episode_length": 300,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 18
+  },
+  {
+    "success": true,
+    "terminal_step": 248,
+    "episode_length": 249,
+    "interventions": [],
+    "n_interventions": 0,
+    "episode_id": 19
+  }
+]
