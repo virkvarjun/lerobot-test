@@ -94,9 +94,9 @@
 - [x] Identify param groups, attention, init
 - [x] Document current state
 
-### Phase 2: Optimizer / Scheduler Adaptations
+### Phase 2: Optimizer / Scheduler Adaptations ✅
 
-**Files to edit:**
+**Files edited:**
 1. `lerobot/src/lerobot/policies/act/modeling_act.py` — extend `get_optim_params()` for more granular groups
 2. `lerobot/src/lerobot/policies/act/configuration_act.py` — add optimizer/scheduler options
 3. `lerobot/src/lerobot/optim/schedulers.py` — add `KarpathyStyleSchedulerConfig` (absolute warmup, warmdown, final LR floor)
@@ -108,11 +108,11 @@
 - Add scheduler: `warmup_steps`, `warmdown_ratio`, `final_lr_frac`
 - Optional: cosine weight decay schedule
 
-**Commit strategy:**
-- Commit 1: Refactor `get_optim_params` into explicit groups (backbone, transformer, action_head, embeddings)
-- Commit 2: Add config fields for per-group LR
-- Commit 3: Add `KarpathyStyleSchedulerConfig`
-- Commit 4: Wire ACT config to use new scheduler when enabled
+**Commit strategy (done):**
+- [x] Commit 1: Refactor `get_optim_params` into explicit groups (backbone, transformer, action_head, embeddings)
+- [x] Commit 2: Add config fields for per-group LR
+- [x] Commit 3: Add `KarpathyWarmdownSchedulerConfig`
+- [x] Commit 4: Wire ACT config to use new scheduler when enabled
 
 ### Phase 3: Attention / Architecture Adaptations
 
