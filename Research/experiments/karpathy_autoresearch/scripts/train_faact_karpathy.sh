@@ -23,8 +23,8 @@ LEROBOT_DIR="${REPO_ROOT}/lerobot"
 [ -d "${RESEARCH_DIR}/lerobot" ] && LEROBOT_DIR="${RESEARCH_DIR}/lerobot"
 cd "$RESEARCH_DIR"
 
-# Default: transfer cube
-DATASET_REPO="${DATASET_REPO:-lerobot/aloha_sim_transfer_cube}"
+# Default: transfer cube (human demos)
+DATASET_REPO="${DATASET_REPO:-lerobot/aloha_sim_transfer_cube_human}"
 OUTPUT_BASE="${OUTPUT_BASE:-outputs/train}"
 STEPS="${STEPS:-100000}"
 
