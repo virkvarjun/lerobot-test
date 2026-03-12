@@ -99,53 +99,36 @@
 **Files edited:**
 1. `lerobot/src/lerobot/policies/act/modeling_act.py` — extend `get_optim_params()` for more granular groups
 2. `lerobot/src/lerobot/policies/act/configuration_act.py` — add optimizer/scheduler options
-3. `lerobot/src/lerobot/optim/schedulers.py` — add `KarpathyStyleSchedulerConfig` (absolute warmup, warmdown, final LR floor)
-4. `lerobot/src/lerobot/optim/optimizers.py` — extend `AdamWConfig` for per-group lr/wd/betas if needed
-
-**Changes:**
-- Add param groups: backbone, encoder_decoder, action_head, embeddings (VAE/encoder proj), norm_bias (no decay)
-- Add `optimizer_lr_action_head`, `optimizer_lr_embeddings`, `optimizer_weight_decay_norm_bias` (0 for norm/bias)
-- Add scheduler: `warmup_steps`, `warmdown_ratio`, `final_lr_frac`
-- Optional: cosine weight decay schedule
+3. `lerobot/src/lerobot/optim/schedulers.py` — add `KarpathyWarmdownSchedulerConfig`
+4. ACT config wired to use new scheduler when enabled
 
 **Commit strategy (done):**
-- [x] Commit 1: Refactor `get_optim_params` into explicit groups (backbone, transformer, action_head, embeddings)
-- [x] Commit 2: Add config fields for per-group LR
-- [x] Commit 3: Add `KarpathyWarmdownSchedulerConfig`
-- [x] Commit 4: Wire ACT config to use new scheduler when enabled
+- [x] Refactor `get_optim_params` into explicit groups (backbone, transformer, action_head, embeddings)
+- [x] Add config fields for per-group LR
+- [x] Add `KarpathyWarmdownSchedulerConfig`
+- [x] Wire ACT config to use new scheduler when enabled
 
 ### Phase 3: Attention / Architecture Adaptations
 
-**Only if Phase 2 is stable:**
-
-- **QK post-norm scaling:** Would require custom `MultiheadAttention` or a wrapper. Lower priority; document as future work or add behind a flag with minimal patch.
-- **Init scales:** Add `init_scale` multiplier in `_reset_parameters()` for action head (default 1.0, ablation 0.5–0.9).
+**Deferred:** QK post-norm scaling, init scale reduction.
 
 ### Phase 4: Configs and Ablations
 
-**New configs:**
-- `faact_karpathy_opt_v1` — optimizer/scheduler only
-- `faact_karpathy_optattn_v1` — opt + optional QK scaling
-- `faact_karpathy_fullsafe_v1` — all safe changes (opt, scheduler, init)
+**Experiment scripts:** `experiments/karpathy_autoresearch/scripts/`
 
 ### Phase 5: Evaluation
 
-**Metrics:**
-- Training loss (L1, KL if VAE)
-- Validation loss
-- Rollout success rate
-- Failure predictor AUROC / F1 (on ACT embeddings)
-- Gradient norms, NaNs, dead heads
+**Metrics:** Training/val loss, rollout success rate, failure predictor AUROC, gradient norms, NaNs.
 
 ---
 
 ## 4. Ablation Order (Safest → Riskiest)
 
-1. **Scheduler only** — Add warmup + warmdown + final LR floor; keep optimizer as-is.
-2. **Param groups** — Add action_head, embeddings groups with configurable LR; keep scheduler.
-3. **Cosine weight decay** — Optional cosine WD schedule.
-4. **Init scale** — Smaller init for action head.
-5. **QK post-norm** — Custom attention path (highest risk, most invasive).
+1. **Scheduler only** — Enable `use_karpathy_scheduler=True`
+2. **Param groups** — Add action_head, embeddings groups with configurable LR
+3. **Cosine weight decay** — Optional cosine WD schedule
+4. **Init scale** — Smaller init for action head
+5. **QK post-norm** — Custom attention path (highest risk)
 
 ---
 
@@ -155,33 +138,21 @@
 |---------|------|
 | ACT model | `lerobot/src/lerobot/policies/act/modeling_act.py` |
 | ACT config | `lerobot/src/lerobot/policies/act/configuration_act.py` |
-| Optimizer factory | `lerobot/src/lerobot/optim/factory.py` |
-| Optimizers | `lerobot/src/lerobot/optim/optimizers.py` |
 | Schedulers | `lerobot/src/lerobot/optim/schedulers.py` |
-| Train config | `lerobot/src/lerobot/configs/train.py` |
-| Training loop | `lerobot/src/lerobot/scripts/lerobot_train.py` |
-| Failure predictor | `failure_prediction/models/failure_predictor.py` |
+| Experiment scripts | `experiments/karpathy_autoresearch/scripts/` |
 
 ---
 
-## 6. RunPod / Local Commands
+## 6. Run Commands
 
-**Smoke test (local):**
+**From `Research/` (project root):**
 ```bash
-lerobot-train --policy.type=act --policy.path=... --dataset.repo_id=... --output_dir=outputs/train/act_smoke --steps=100
+bash experiments/karpathy_autoresearch/scripts/train_faact_karpathy.sh smoke
 ```
 
-**RunPod ablation:**
+**RunPod:**
 ```bash
-# TBD: script under scripts/ for karpathy_faact_* experiments
+cd /workspace/Research
+export MUJOCO_GL=egl
+bash experiments/karpathy_autoresearch/scripts/train_faact_karpathy.sh runpod
 ```
-
----
-
-## 7. Success Criteria
-
-- Training converges without NaNs or divergence
-- Validation loss ≤ or better than baseline
-- Rollout success rate ≥ baseline
-- Failure predictor AUROC stable or improved
-- Each change is reversible via config

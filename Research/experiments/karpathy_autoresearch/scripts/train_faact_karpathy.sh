@@ -1,22 +1,23 @@
 #!/bin/bash
 # Train ACT with Karpathy-inspired optimizer/scheduler adaptations.
+# EXPERIMENTAL — lives in experiments/karpathy_autoresearch/
 #
-# Usage (local smoke, ~100 steps):
-#   cd Research && bash scripts/train_faact_karpathy.sh smoke
+# Usage (local smoke, 500 steps):
+#   cd Research && bash experiments/karpathy_autoresearch/scripts/train_faact_karpathy.sh smoke
 #
 # Usage (RunPod, full ablation):
-#   cd /workspace/Research && bash scripts/train_faact_karpathy.sh runpod
+#   cd /workspace/Research && bash experiments/karpathy_autoresearch/scripts/train_faact_karpathy.sh runpod
 #
 # Prerequisites: lerobot installed, dataset and policy configured.
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RESEARCH_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+# Project root (Research/) — 3 levels up from experiments/.../scripts/
+RESEARCH_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 cd "$RESEARCH_DIR"
 
-# Default: transfer cube from a23v
+# Default: transfer cube
 DATASET_REPO="${DATASET_REPO:-lerobot/aloha_sim_transfer_cube}"
-ACT_CHECKPOINT="${ACT_CHECKPOINT:-}"
 OUTPUT_BASE="${OUTPUT_BASE:-outputs/train}"
 STEPS="${STEPS:-100000}"
 

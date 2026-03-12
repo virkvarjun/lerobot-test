@@ -1,5 +1,7 @@
 # Experiment: faact_karpathy_opt_v1
 
+**Location:** `experiments/karpathy_autoresearch/experiments/`
+
 ## Hypothesis
 
 Karpathy-style optimizer/scheduler changes improve ACT training stability and sample efficiency:
@@ -24,15 +26,18 @@ Karpathy-style optimizer/scheduler changes improve ACT training stability and sa
 
 **Smoke (local, 500 steps):**
 ```bash
-cd Research && bash scripts/train_faact_karpathy.sh smoke
+cd Research
+bash experiments/karpathy_autoresearch/scripts/train_faact_karpathy.sh smoke
 ```
 
 **Full (RunPod):**
 ```bash
-cd /workspace/Research && bash scripts/train_faact_karpathy.sh runpod
+cd /workspace/Research
+export MUJOCO_GL=egl
+bash experiments/karpathy_autoresearch/scripts/train_faact_karpathy.sh runpod
 ```
 
-**Manual override:**
+**Manual (if lerobot-train is in PATH):**
 ```bash
 lerobot-train --policy.type=act --policy.use_karpathy_scheduler=True \
   --policy.scheduler_warmup_steps=500 \
