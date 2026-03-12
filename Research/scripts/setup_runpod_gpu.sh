@@ -51,7 +51,8 @@ fi
 conda activate lerobot
 
 echo "=== [4/6] Install lerobot (aloha for sim) ==="
-cd "${RESEARCH_DIR}/lerobot"
+# lerobot submodule is at repo root, not inside Research/
+cd "${REPO_DIR}/lerobot"
 pip install -e ".[aloha]"
 pip install "shimmy[gym-v26]"
 
