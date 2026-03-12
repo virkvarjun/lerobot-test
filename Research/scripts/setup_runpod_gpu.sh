@@ -22,6 +22,8 @@ else
     git clone --recurse-submodules "${REPO_URL}" lerobot-test
     cd lerobot-test
 fi
+# Ensure submodules are populated (lerobot at repo root)
+git submodule update --init --recursive
 
 echo "=== [2/6] System deps (FFmpeg, EGL for headless MuJoCo) ==="
 apt-get update -qq && apt-get install -y -qq \
