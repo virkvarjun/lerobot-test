@@ -8,6 +8,9 @@
 # Usage (RunPod, full ablation):
 #   cd /workspace/lerobot-test/Research && bash experiments/karpathy_autoresearch/scripts/train_faact_karpathy.sh runpod
 #
+# Usage (vanilla ACT — when Karpathy args not in installed lerobot):
+#   bash experiments/karpathy_autoresearch/scripts/train_faact_karpathy.sh runpod vanilla
+#
 # Prerequisites: lerobot installed, dataset and policy configured.
 
 set -e
@@ -35,23 +38,32 @@ elif [ "$1" = "runpod" ]; then
   STEPS=100000
   EVAL_FREQ=10000
   SAVE_FREQ=20000
-  echo "RunPod run: $STEPS steps"
+  [ "$2" = "vanilla" ] && USE_VANILLA=1 || USE_VANILLA=0
+  [ "$USE_VANILLA" = 1 ] && echo "RunPod run (vanilla ACT): $STEPS steps" || echo "RunPod run: $STEPS steps"
+  shift  # consume runpod
+  [ "$USE_VANILLA" = 1 ] && shift  # consume vanilla
 else
   EVAL_FREQ=10000
   SAVE_FREQ=20000
+  USE_VANILLA=0
 fi
 
-# Karpathy preset: scheduler + per-group LR
-# Optional: --policy.optimizer_lr_action_head=2e-5
+# Build output dir and base args
+OUTPUT_DIR="${OUTPUT_BASE}/faact_$([ "$USE_VANILLA" = 1 ] && echo 'vanilla' || echo 'karpathy_opt')_$(date +%Y%m%d_%H%M)"
+
+KARPATHY_ARGS=()
+[ "$USE_VANILLA" = 0 ] && KARPATHY_ARGS=(
+  --policy.use_karpathy_scheduler=True
+  --policy.scheduler_warmup_steps=500
+  --policy.scheduler_warmdown_ratio=0.5
+  --policy.scheduler_final_lr_frac=0.05
+)
 
 PYTHONPATH="${LEROBOT_DIR}:${RESEARCH_DIR}" lerobot-train \
   --dataset.repo_id="$DATASET_REPO" \
   --policy.type=act \
-  --policy.use_karpathy_scheduler=True \
-  --policy.scheduler_warmup_steps=500 \
-  --policy.scheduler_warmdown_ratio=0.5 \
-  --policy.scheduler_final_lr_frac=0.05 \
-  --output_dir="${OUTPUT_BASE}/faact_karpathy_opt_$(date +%Y%m%d_%H%M)" \
+  "${KARPATHY_ARGS[@]}" \
+  --output_dir="$OUTPUT_DIR" \
   --steps=$STEPS \
   --eval_freq=$EVAL_FREQ \
   --save_freq=$SAVE_FREQ \
