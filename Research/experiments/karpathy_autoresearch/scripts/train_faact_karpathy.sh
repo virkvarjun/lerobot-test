@@ -62,6 +62,7 @@ KARPATHY_ARGS=()
 PYTHONPATH="${LEROBOT_DIR}:${RESEARCH_DIR}" lerobot-train \
   --dataset.repo_id="$DATASET_REPO" \
   --policy.type=act \
+  --policy.push_to_hub=False \
   "${KARPATHY_ARGS[@]}" \
   --output_dir="$OUTPUT_DIR" \
   --steps=$STEPS \
