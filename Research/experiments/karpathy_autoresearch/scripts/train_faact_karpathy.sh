@@ -11,6 +11,9 @@
 # Usage (vanilla ACT — when Karpathy args not in installed lerobot):
 #   bash experiments/karpathy_autoresearch/scripts/train_faact_karpathy.sh runpod vanilla
 #
+# Usage (RunPod with CPU — if "no kernel image" CUDA error, use to verify pipeline):
+#   bash experiments/karpathy_autoresearch/scripts/train_faact_karpathy.sh runpod vanilla cpu
+#
 # Prerequisites: lerobot installed, dataset and policy configured.
 
 set -e
@@ -39,13 +42,19 @@ elif [ "$1" = "runpod" ]; then
   EVAL_FREQ=10000
   SAVE_FREQ=20000
   [ "$2" = "vanilla" ] && USE_VANILLA=1 || USE_VANILLA=0
+  [ "$3" = "cpu" ] && USE_CPU=1 || USE_CPU=0
+  [ "$USE_CPU" = 1 ] && DEVICE_ARG="--policy.device=cpu" || DEVICE_ARG=""
   [ "$USE_VANILLA" = 1 ] && echo "RunPod run (vanilla ACT): $STEPS steps" || echo "RunPod run: $STEPS steps"
+  [ "$USE_CPU" = 1 ] && echo "Using CPU (slow — fix PyTorch/GPU for real training)"
   shift  # consume runpod
   [ "$USE_VANILLA" = 1 ] && shift  # consume vanilla
+  [ "$USE_CPU" = 1 ] && shift  # consume cpu
 else
   EVAL_FREQ=10000
   SAVE_FREQ=20000
   USE_VANILLA=0
+  USE_CPU=0
+  DEVICE_ARG=""
 fi
 
 # Build output dir and base args
@@ -64,6 +73,7 @@ PYTHONPATH="${LEROBOT_DIR}:${RESEARCH_DIR}" lerobot-train \
   --dataset.video_backend=pyav \
   --policy.type=act \
   --policy.push_to_hub=False \
+  $DEVICE_ARG \
   "${KARPATHY_ARGS[@]}" \
   --output_dir="$OUTPUT_DIR" \
   --steps=$STEPS \
