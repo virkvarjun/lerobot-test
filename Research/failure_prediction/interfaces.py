@@ -1,7 +1,8 @@
-"""Interfaces for later self-correction integration.
+"""Interfaces for pluggable risk scoring and intervention.
 
-Lightweight abstractions so runtime intervention can plug in without rewrites.
-Do NOT implement actual chunk interruption or recovery yet.
+RiskScorer: supervised MLP (predict_step).
+FiperScorer: RND + ACE (compute_scores).
+InterventionPolicy: when to interrupt (placeholder).
 """
 
 from __future__ import annotations

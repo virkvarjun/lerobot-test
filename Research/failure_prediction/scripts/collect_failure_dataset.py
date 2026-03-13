@@ -82,8 +82,8 @@ def parse_args():
     return p.parse_args()
 
 
+# Env: gym_aloha/AlohaTransferCube-v0 etc.
 def make_single_env(task: str, env_type: str, max_steps: int | None = None):
-    """Create a single (non-vectorized) gym environment."""
     gym_kwargs = {
         "obs_type": "pixels_agent_pos",
         "render_mode": "rgb_array",
@@ -96,8 +96,8 @@ def make_single_env(task: str, env_type: str, max_steps: int | None = None):
     return env
 
 
+# Load ACT + preprocessor (obs -> policy format) + postprocessor (action denorm)
 def load_policy_and_processors(checkpoint_path: str, device: str):
-    """Load ACT policy and its pre/post processors from a checkpoint."""
     from pathlib import Path
 
     from lerobot.policies.act.modeling_act import ACTPolicy
@@ -129,8 +129,8 @@ def load_policy_and_processors(checkpoint_path: str, device: str):
     return policy, preprocessor, postprocessor
 
 
+# Env obs -> policy format: pixels -> (1,C,H,W) float [0,1], agent_pos -> state
 def preprocess_obs(obs: dict) -> dict[str, torch.Tensor]:
-    """Convert raw env observation to policy-compatible tensor dict."""
     result = {}
 
     if "pixels" in obs:
@@ -157,8 +157,8 @@ def preprocess_obs(obs: dict) -> dict[str, torch.Tensor]:
     return result
 
 
+# Get actions + ACT internals (encoder_out, decoder_out, latent). Try policy method, else return_features, else hooks.
 def predict_action_chunk_with_features(policy, obs_processed):
-    """Get action chunk and features from policy. Supports both patched and stock lerobot."""
     if hasattr(policy, "predict_action_chunk_with_features"):
         return policy.predict_action_chunk_with_features(obs_processed)
     # Fallback 1: model supports return_features=True (custom lerobot fork)
@@ -214,14 +214,8 @@ def predict_action_chunk_with_features(policy, obs_processed):
         return actions, features
 
 
+# encoder_out -> first token only; decoder_out -> mean over chunk. decoder_mean is primary risk input.
 def features_to_numpy(features: dict[str, torch.Tensor]) -> dict[str, np.ndarray]:
-    """Convert model features dict from GPU tensors to CPU numpy arrays.
-
-    Reduces high-dimensional features to manageable sizes:
-    - latent_sample: kept as-is (B, latent_dim)
-    - encoder_out: first token only (B, dim_model) - the latent encoding
-    - decoder_out: mean-pooled over chunk dim (B, dim_model)
-    """
     result = {}
     for key, val in features.items():
         v = val.detach().cpu()
@@ -236,10 +230,9 @@ def features_to_numpy(features: dict[str, torch.Tensor]) -> dict[str, np.ndarray
     return result
 
 
+# Main loop: load ACT, run episodes, log features + outcomes per step to raw/episode_*.npz
 def run_collection(args):
-    """Main collection loop."""
-    # Register gym env namespace before creating env (packages register on import)
-    pkg = f"gym_{args.env_type}"
+    pkg = f"gym_{args.env_type}"  # register env on import
     try:
         importlib.import_module(pkg)
     except ModuleNotFoundError as e:
@@ -324,7 +317,7 @@ def run_collection(args):
             need_new_chunk = (current_chunk is None) or (chunk_step_idx >= n_action_steps)
 
             if need_new_chunk:
-                action_chunk, features = predict_action_chunk_with_features(policy, obs_processed)
+                action_chunk, features = predict_action_chunk_with_features(policy, obs_processed)  # features here
                 current_chunk = action_chunk
                 current_features = features_to_numpy(features) if args.save_embeddings else None
                 chunk_step_idx = 0

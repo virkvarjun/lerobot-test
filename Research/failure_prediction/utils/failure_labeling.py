@@ -11,6 +11,8 @@ from __future__ import annotations
 import numpy as np
 
 
+# Label each timestep: 1 if failure happens within K steps from here.
+# steps_to_failure = distance to failure; -1 for success episodes.
 def label_failure_windows(
     num_steps: int,
     episode_failed: bool,
@@ -45,14 +47,14 @@ def label_failure_windows(
 
     if episode_failed:
         for t in range(num_steps):
-            dist = terminal_step - t
+            dist = terminal_step - t  # steps until failure
             steps_to_failure[t] = max(dist, 0)
 
             if dist <= failure_horizon and dist >= 0:
-                failure_within_k[t] = 1
+                failure_within_k[t] = 1  # within K steps of failure
 
             if dist <= near_failure_horizon and dist >= 0:
-                near_failure[t] = 1
+                near_failure[t] = 1  # softer warning window (2K by default)
 
     return {
         "failure_within_k": failure_within_k,

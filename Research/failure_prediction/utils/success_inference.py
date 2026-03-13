@@ -5,6 +5,8 @@ from __future__ import annotations
 import numpy as np
 
 
+# Infer success/failure from env signals (rewards, is_success, terminated, truncated).
+# Used when labeling episodes after collection.
 def infer_episode_outcome(
     rewards: np.ndarray,
     successes: np.ndarray,
@@ -40,7 +42,7 @@ def infer_episode_outcome(
     done_indices = np.where(dones)[0]
     terminal_step = int(done_indices[0]) if len(done_indices) > 0 else num_steps - 1
 
-    success = bool(np.any(successes))
+    success = bool(np.any(successes))  # env reports is_success at some step
 
     if success:
         termination_reason = "success"

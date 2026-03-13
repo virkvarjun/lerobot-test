@@ -47,8 +47,8 @@ from failure_prediction.scripts.collect_failure_dataset import (  # noqa: E402
 )
 
 
+# For intervention: add noise to obs so we get N different chunks from ACT.
 def add_obs_noise(obs_dict: dict, noise_std: float = 0.03, rng: np.random.Generator | None = None) -> dict:
-    """Add Gaussian noise to image observations for candidate diversity."""
     if rng is None:
         rng = np.random.default_rng()
     out = dict(obs_dict)
@@ -69,8 +69,8 @@ def add_obs_noise(obs_dict: dict, noise_std: float = 0.03, rng: np.random.Genera
     return out
 
 
+# Load best_model.pt + config.json. Maps feat_decoder_mean -> decoder_mean in features dict.
 def load_risk_model(ckpt_dir: Path, device: str, feature_field: str = "feat_decoder_mean"):
-    """Load trained failure predictor and config."""
     import json
     from failure_prediction.models.failure_predictor import FailurePredictorMLP
 
@@ -96,6 +96,7 @@ def load_risk_model(ckpt_dir: Path, device: str, feature_field: str = "feat_deco
     return model, score_key
 
 
+# baseline / monitor_only (log alarms) / intervention (resample + pick lowest risk)
 def run_episode(
     env,
     policy,
@@ -136,10 +137,9 @@ def run_episode(
     while not done and step < max_ep_steps:
         obs_dict = preprocess_obs(raw_obs)
         obs_processed = preprocessor(obs_dict)
-        need_new_chunk = (current_chunk is None) or (chunk_step_idx >= n_action_steps)
+        need_new_chunk = (current_chunk is None) or (chunk_step_idx >= n_action_steps)  # chunk-based execution
 
         if need_new_chunk:
-            # Risk scoring and optional intervention
             action_chunk, features = predict_action_chunk_with_features(policy, obs_processed)
             feat_np = features_to_numpy(features)
             feat_vec = feat_np.get(risk_key)
@@ -154,7 +154,7 @@ def run_episode(
                 alarmed = risk_prob >= risk_threshold
 
                 if mode == "intervention" and alarmed:
-                    # Generate N candidate chunks via observation noise, pick lowest risk
+                    # N chunks from noisy obs; score each; pick lowest risk
                     candidates = []
                     for _ in range(num_candidate_chunks):
                         noisy_obs = add_obs_noise(raw_obs, noise_std=obs_noise_std, rng=rng)

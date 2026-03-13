@@ -9,8 +9,8 @@ import torch
 import torch.nn as nn
 
 
+# 512 -> 256 -> 128 -> 1. Input: feat_decoder_mean. Output: logit. BCEWithLogitsLoss.
 class FailurePredictorMLP(nn.Module):
-    """Simple MLP for binary failure prediction from embeddings."""
 
     def __init__(
         self,

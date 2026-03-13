@@ -15,6 +15,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
+# Buffers steps per episode, writes raw/episode_XXXXXX.npz. Keys: feat_decoder_mean, feat_encoder_latent_token, reward, done, etc.
 class FailureDatasetLogger:
     """Collects and saves per-episode rollout data for failure prediction.
 
@@ -130,7 +131,7 @@ class FailureDatasetLogger:
         if self.save_embeddings and features is not None:
             for key, val in features.items():
                 if val is not None:
-                    step[f"feat_{key}"] = np.asarray(val, dtype=np.float32)
+                    step[f"feat_{key}"] = np.asarray(val, dtype=np.float32)  # decoder_mean, encoder_latent_token, latent_sample
 
         self._step_data.append(step)
 
@@ -204,7 +205,7 @@ class FailureDatasetLogger:
 
     @staticmethod
     def load_episode(path: str | Path) -> dict:
-        """Load a saved episode .npz file and return structured data."""
+        # Returns {meta: {...}, arrays: {feat_*, reward, done, ...}}
         data = dict(np.load(path, allow_pickle=True))
         meta = json.loads(str(data.pop("_meta_json")[0]))
         return {"meta": meta, "arrays": data}

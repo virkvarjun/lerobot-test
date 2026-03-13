@@ -47,7 +47,7 @@ def parse_args():
 
 
 def load_all_episodes(input_dir: Path) -> list[dict]:
-    """Load all episode .npz files from a directory."""
+    # Raw episodes from collect step
     files = sorted(input_dir.glob("episode_*.npz"))
     if not files:
         raise FileNotFoundError(f"No episode files found in {input_dir}")
@@ -62,15 +62,12 @@ def load_all_episodes(input_dir: Path) -> list[dict]:
     return episodes
 
 
+# Call label_failure_windows per episode; copy feat_* from raw. Output: timestep_dataset.npz
 def process_episodes(
     episodes: list[dict],
     failure_horizon: int,
     near_failure_horizon: int | None,
 ) -> dict:
-    """Process all episodes into a flat timestep dataset with labels.
-
-    Returns a dict of arrays, each with shape (total_timesteps, ...).
-    """
     all_rows = {
         "episode_id": [],
         "timestep": [],
@@ -99,7 +96,7 @@ def process_episodes(
         ep_failed = meta.get("episode_failed", not meta.get("success", False))
         terminal_step = meta.get("terminal_step", meta.get("num_steps", num_steps) - 1)
 
-        labels = label_failure_windows(
+        labels = label_failure_windows(  # failure_within_k, steps_to_failure, near_failure
             num_steps=num_steps,
             episode_failed=ep_failed,
             terminal_step=terminal_step,
